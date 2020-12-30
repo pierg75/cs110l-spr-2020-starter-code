@@ -27,14 +27,49 @@ fn pick_a_random_word() -> String {
     String::from(words[rand::thread_rng().gen_range(0, words.len())].trim())
 }
 
+fn swap_letter(vec1: &mut Vec<char>, vec2: &mut Vec<char>, ch: char) {
+    // vec1 is the original word.
+    // vec2 is the empty guessed word.
+    // We have to swap the letter found in 'ch', so substituting the
+    // original char with '-' and substitute the '-' char in the guessed
+    // word with the letter.
+    println!("vec1: {:?}", vec1);
+    println!("vec2: {:?}", vec2);
+    println!("ch: {:?}", ch);
+    let pos = vec1.binary_search(&ch).unwrap();
+    vec1[pos] = '-';
+    vec2[pos] = ch;
+}
+
 fn main() {
     let secret_word = pick_a_random_word();
     // Note: given what you know about Rust so far, it's easier to pull characters out of a
     // vector than it is to pull them out of a string. You can get the ith character of
     // secret_word by doing secret_word_chars[i].
-    let secret_word_chars: Vec<char> = secret_word.chars().collect();
+    let mut secret_word_chars: Vec<char> = secret_word.chars().collect();
     // Uncomment for debugging:
     // println!("random word: {}", secret_word);
 
     // Your code here! :)
+    println!("Welcome to CS110L Hangman!");
+    let mut guessed: Vec<char> = vec!['-'; secret_word_chars.len()];
+    let mut num_guessed = NUM_INCORRECT_GUESSES;
+    //println!("guessed word: {:?}", guessed);
+    loop {
+        println!("The word so far is {}", guessed.iter().collect::<String>());
+        println!("You have guessed the following letters: {}", num_guessed);
+        println!("You have {} guesses left", NUM_INCORRECT_GUESSES);
+        print!("Please guess a letter: ");
+        // Make sure the prompt from the previous line gets displayed:
+        io::stdout().flush().expect("Error flushing stdout.");
+        let mut guess = String::new();
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("Error reading line.");
+        let guess_char: Vec<char> = guess.chars().collect();
+        if secret_word_chars.contains(&guess_char[0]) {
+            num_guessed -= 1;
+            swap_letter(&mut secret_word_chars, &mut guessed, guess_char[0]);
+        }
+    }
 }
