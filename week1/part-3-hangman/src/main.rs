@@ -33,12 +33,16 @@ fn swap_letter(vec1: &mut Vec<char>, vec2: &mut Vec<char>, ch: char) {
     // We have to swap the letter found in 'ch', so substituting the
     // original char with '-' and substitute the '-' char in the guessed
     // word with the letter.
-    println!("vec1: {:?}", vec1);
-    println!("vec2: {:?}", vec2);
-    println!("ch: {:?}", ch);
-    let pos = vec1.binary_search(&ch).unwrap();
-    vec1[pos] = '-';
-    vec2[pos] = ch;
+    // Comment out the prints to debug
+    // println!("vec1: {:?}", vec1);
+    // println!("vec2: {:?}", vec2);
+    // println!("ch: {:?}", ch);
+    if vec1.contains(&ch) {
+        let pos = vec1.iter().position(|x| *x == ch).unwrap();
+        // println!("pos: {:?}", pos);
+        vec1[pos] = '-';
+        vec2[pos] = ch;
+    }
 }
 
 fn main() {
@@ -53,12 +57,20 @@ fn main() {
     // Your code here! :)
     println!("Welcome to CS110L Hangman!");
     let mut guessed: Vec<char> = vec!['-'; secret_word_chars.len()];
-    let mut num_guessed = NUM_INCORRECT_GUESSES;
+    let mut guessed_wrong_num = NUM_INCORRECT_GUESSES;
+    let mut guessed_correct_num = 0;
+    let mut guessed_letters = String::new();
     //println!("guessed word: {:?}", guessed);
     loop {
-        println!("The word so far is {}", guessed.iter().collect::<String>());
-        println!("You have guessed the following letters: {}", num_guessed);
-        println!("You have {} guesses left", NUM_INCORRECT_GUESSES);
+        println!(
+            "\nThe word so far is {}",
+            guessed.iter().collect::<String>()
+        );
+        println!(
+            "You have guessed the following letters: {}",
+            guessed_letters
+        );
+        println!("You have {} guesses left", guessed_wrong_num);
         print!("Please guess a letter: ");
         // Make sure the prompt from the previous line gets displayed:
         io::stdout().flush().expect("Error flushing stdout.");
@@ -68,8 +80,23 @@ fn main() {
             .expect("Error reading line.");
         let guess_char: Vec<char> = guess.chars().collect();
         if secret_word_chars.contains(&guess_char[0]) {
-            num_guessed -= 1;
             swap_letter(&mut secret_word_chars, &mut guessed, guess_char[0]);
+            guessed_correct_num += 1;
+            guessed_letters.push(guess_char[0]);
+            if guessed_correct_num == secret_word_chars.len() {
+                println!(
+                    "\nCongratulations you guessed the secret word: {}",
+                    guessed.into_iter().collect::<String>()
+                );
+                break;
+            }
+        } else {
+            guessed_wrong_num -= 1;
+            println!("Sorry, that letter is not in the word");
+            if guessed_wrong_num.eq(&0) {
+                println!("\nSorry, you ran out of guesses!");
+                break;
+            }
         }
     }
 }
