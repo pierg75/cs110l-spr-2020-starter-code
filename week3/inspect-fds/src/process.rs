@@ -48,8 +48,20 @@ impl Process {
     }
      pub fn print(&self) {
          println!("========== \"{}\" (pid {}, ppid {}) ==========", self.command, self.pid, self.ppid);
-         if let Some(entries) = self.list_fds() {
-             entries.iter().for_each(|x| println!("fd: {}", x));
+         match self.list_open_files() {
+             Some(open_files) => open_files.iter().for_each(
+                |(fd, fileinfo)| 
+                    println!("{:<4} {:<15} cursor: {:<4} {}",
+                        fd,
+                        format!("({})", fileinfo.access_mode),
+                        fileinfo.cursor,
+                        fileinfo.colorized_name(),
+                    )
+                ),
+            None => println!("Warning: could not inspect file descriptors for this process! \
+            It might have exited just as we were about to look at its fd table, \
+            or it might have exited a while ago and is waiting for the parent \
+            to reap it."),
          }
     }
 }
