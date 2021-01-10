@@ -14,7 +14,10 @@ fn main() {
     let target = &args[1];
 
     match ps_utils::get_target(target).expect("Error getting the target") {
-        Some(proc) => {println!("Found pid {}", proc.pid)}
+        Some(proc) => {
+            println!("Found pid {}", proc.pid);
+            proc.print();
+        }
         None => {
             println!("Target \"{}\" did not match any running PIDs or executables", target);
             std::process::exit(1);
