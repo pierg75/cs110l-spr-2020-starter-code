@@ -17,6 +17,9 @@ fn main() {
         Some(proc) => {
             println!("Found pid {}", proc.pid);
             proc.print();
+            for proc in ps_utils::get_child_processes(proc.pid).expect("Couldn't get the any process children") {
+                proc.print();
+            }
         }
         None => {
             println!("Target \"{}\" did not match any running PIDs or executables", target);
