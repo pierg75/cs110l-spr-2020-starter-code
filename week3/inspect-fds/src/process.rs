@@ -21,13 +21,12 @@ impl Process {
     pub fn list_fds(&self) -> Option<Vec<usize>> {
         let mut list_fds: Vec<usize> = Vec::new();
         let path = format!("/proc/{}/fd", self.pid);
-        if let Some(dir) = fs::read_dir(path).ok() {        
-                for entry in dir {
-                    let conv_entry = entry.ok();
-                    if let Some(entry) = conv_entry {
-                        list_fds.push(entry.file_name().to_string_lossy().parse::<usize>().unwrap());
-                    }
-                }
+        let dir = fs::read_dir(path).ok()?;
+        for entry in dir {
+            let conv_entry = entry.ok();
+            if let Some(entry) = conv_entry {
+                list_fds.push(entry.file_name().to_string_lossy().parse::<usize>().unwrap());
+            }
         }
         if list_fds.is_empty() {
             None
